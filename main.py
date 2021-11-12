@@ -28,6 +28,7 @@ class Tile():
     def __init__(self, x, y, isMine):
         self.x = x
         self.y = y
+        self.postion = (x, y)
         self.isMine = isMine
 
 class Game():
@@ -48,8 +49,8 @@ class Game():
             y = random.randint(0, 9)
             self.mines.append((x, y))
 
-        for y in range(self.height):
-            for x in range(self.width):
+        for x in range(self.width):
+            for y in range(self.height):
                 if (x, y) in self.mines:
                     row.append(Tile(x, y, True))
                 else:
@@ -64,7 +65,10 @@ class Game():
 
 game = Game(10, 10, 9)
 game.generateGame()
-print(game.mines)
+tmp = random.choice(game.mines)
+print(tmp)
+print(tmp[0], tmp[1])
+print(game.grid[tmp[0]][tmp[1]].postion, game.grid[tmp[0]][tmp[1]].isMine)
 
 running = True
 while running:

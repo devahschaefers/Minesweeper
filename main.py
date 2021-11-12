@@ -37,20 +37,23 @@ class Game():
         self.numMines = numMines
         self.size = (width * SPRITE_SIZE + 2 * BORDER, height * SPRITE_SIZE + TOP_BORDER + BORDER)
         self.screen = pygame.display.set_mode(self.size)
-        self.grid = list()
-        self.mines = list()
+        self.grid = list() #a list of tile objects
+        self.mines = list() #contains a list of mine postions
 
     def generateGame(self):
         row = list()
         #genrate mines
-        for i in range(NumMines):
+        for i in range(self.numMines):
             x = random.randint(0, 9)
             y = random.randint(0, 9)
-            self.mines.append([x, y])
+            self.mines.append((x, y))
 
         for y in range(self.height):
             for x in range(self.width):
-                row.append(Tile(x, y))
+                if (x, y) in self.mines:
+                    row.append(Tile(x, y, True))
+                else:
+                    row.append(Tile(x, y, False))
             self.grid.append(row.copy())
             row.clear()
 
@@ -61,7 +64,7 @@ class Game():
 
 game = Game(10, 10, 9)
 game.generateGame()
-print(game.grid[0][9])
+print(game.mines)
 
 running = True
 while running:

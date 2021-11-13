@@ -25,11 +25,15 @@ TOP_BORDER = 100 #top border to display info like time high score, flags etc.
 GRAY = (128, 128, 128)
 
 class Tile():
-    def __init__(self, x, y, isMine):
+    def __init__(self, x, y, isMine, maxX, maxY):
         self.x = x
         self.y = y
         self.postion = (x, y)
         self.isMine = isMine
+        self.value = 0
+        if self.isMine:
+            self.value = -1
+
 
 class Game():
     def __init__(self, width, height, numMines):
@@ -41,9 +45,10 @@ class Game():
         self.grid = list() #a list of tile objects
         self.mines = list() #contains a list of mine postions
 
-    def generateGame(self):
+
+    def generateGame(self): #creates a grid list in which Tile objects or stored a tile object can be accesd through grid[{x postion of tile object}][{y postion of tile object}]
         row = list()
-        #genrate mines
+        #genrate mines postions
         for i in range(self.numMines):
             x = random.randint(0, 9)
             y = random.randint(0, 9)
@@ -52,23 +57,33 @@ class Game():
         for x in range(self.width):
             for y in range(self.height):
                 if (x, y) in self.mines:
-                    row.append(Tile(x, y, True))
+                    row.append(Tile(x, y, True, self.width, self.height))
                 else:
-                    row.append(Tile(x, y, False))
+                    row.append(Tile(x, y, False, self.width, self.height))
             self.grid.append(row.copy())
             row.clear()
 
+    def evalute_values(self): #genrate game has to be called before this for the function to work
+        for row in self.grid:
+            for tile in row: # loop through each tile on the board
+                if tile.isMine == False:
+                    for x in range(-1, 2): #the change in x for the tile postion we will check
+                        if tile.x + x <= 9 and tile.x + x >= 0:
+                            for y in range(-1, 2): #the change in y for the tile postion we will check
+                                if tile.y + y <= 9 and tile.y + y >= 0:
+                                    if self.grid[tile.x + x][tile.y + y].isMine:
+                                        tile.value += 1
 
 
 
-
-
-game = Game(10, 10, 9)
+game = Game(10, 10, 9) #maybe add user input for this later
 game.generateGame()
-tmp = random.choice(game.mines)
-print(tmp)
-print(tmp[0], tmp[1])
-print(game.grid[tmp[0]][tmp[1]].postion, game.grid[tmp[0]][tmp[1]].isMine)
+game.evalute_values()
+
+for x in range(10):
+    print('\n')
+    for  y in range(10):
+        print(game.grid[x][y].value, end = " ")
 
 running = True
 while running:

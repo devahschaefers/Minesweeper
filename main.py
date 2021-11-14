@@ -28,11 +28,10 @@ class Tile():
         self.x = x
         self.y = y
         self.postion = (x, y)
+        self.value = 0 #origanly set to 0 this is updated when evalute_values function is run
         self.isMine = isMine
-        self.value = 0
-
-        if self.isMine:
-            self.value = -1
+        self.isClicked = False
+        self.isFlagged = False
 
 
 class Game():
@@ -72,8 +71,8 @@ class Game():
             row.clear()
 
     def evalute_values(self): #genrate game has to be called before this for the function to work
-        for row in self.grid:
-            for tile in row: # loop through each tile on the board
+        for collumn in self.grid:
+            for tile in collumn: # loop through each tile on the board
                 if tile.isMine == False:
                     for x in range(-1, 2): #the change in x for the tile postion we will check
                         if tile.x + x <= 9 and tile.x + x >= 0:
@@ -81,13 +80,14 @@ class Game():
                                 if tile.y + y <= 9 and tile.y + y >= 0:
                                     if self.grid[tile.x + x][tile.y + y].isMine:
                                         tile.value += 1
+                else: tile.value = -1
 
                                         #ik it looks a bit weird but this is the easiest way i could think of
 
     def draw(self):
         screen = self.screen
-        for row in self.grid:
-            for tile in row:
+        for collumn in self.grid:
+            for tile in collumn:
                 if tile.value == -1:
                     screen.blit(img_mine, (self.coordinates_to_pixel_loc((tile.x, tile.y)))) #need to make funtion later and maybe think of a better name
                 elif tile.value == 0:

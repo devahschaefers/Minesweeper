@@ -23,8 +23,16 @@ TOP_BORDER = 100 #top border to display info like time high score, flags etc.
 
 GRAY = (128, 128, 128)
 
+
+def coordinates_to_pixel_loc (postion): #maybe think of a better name
+    postion = list(postion)
+    postion[0] = postion[0] * SPRITE_SIZE + BORDER
+    postion[1] = postion[1] * SPRITE_SIZE + TOP_BORDER
+    return (postion[0], postion[1])
+
+
 class Tile():
-    def __init__(self, x, y, isMine, maxX, maxY):
+    def __init__(self, x, y, isMine, maxX, maxY): #maxY and maxX are outer posstin of the sprite while x y is where the computer draws them we need max to do some math calculations
         self.x = x
         self.y = y
         self.postion = (x, y)
@@ -32,6 +40,7 @@ class Tile():
         self.isMine = isMine
         self.isClicked = False
         self.isFlagged = False
+        self.rect = pygame.Rect(coordinates_to_pixel_loc(self.postion), (SPRITE_SIZE, SPRITE_SIZE))
 
 
 class Game():
@@ -43,13 +52,6 @@ class Game():
         self.screen = pygame.display.set_mode(self.size)
         self.grid = list() #a list of tile objects
         self.mines = list() #contains a list of mine postions
-
-    #private methods
-    def coordinates_to_pixel_loc(self, postion):
-        postion = list(postion)
-        postion[0] = postion[0] * SPRITE_SIZE + BORDER
-        postion[1] = postion[1] * SPRITE_SIZE + TOP_BORDER
-        return (postion[0], postion[1])
 
 
     #public methods
@@ -88,26 +90,29 @@ class Game():
         screen = self.screen
         for collumn in self.grid:
             for tile in collumn:
-                if tile.value == -1:
-                    screen.blit(img_mine, (self.coordinates_to_pixel_loc((tile.x, tile.y)))) #need to make funtion later and maybe think of a better name
-                elif tile.value == 0:
-                    screen.blit(img_emptyGrid, self.coordinates_to_pixel_loc((tile.x, tile.y)))
-                elif tile.value == 1:
-                    screen.blit(img_grid1, self.coordinates_to_pixel_loc((tile.x, tile.y)))
-                elif tile.value == 2:
-                    screen.blit(img_grid2, self.coordinates_to_pixel_loc((tile.x, tile.y)))
-                elif tile.value == 3:
-                    screen.blit(img_grid3, self.coordinates_to_pixel_loc((tile.x, tile.y)))
-                elif tile.value == 4:
-                    screen.blit(img_grid4, self.coordinates_to_pixel_loc((tile.x, tile.y)))
-                elif tile.value == 5:
-                    screen.blit(img_grid5, self.coordinates_to_pixel_loc((tile.x, tile.y)))
-                elif tile.value == 6:
-                    screen.blit(img_grid6, self.coordinates_to_pixel_loc((tile.x, tile.y)))
-                elif tile.value == 7:
-                    screen.blit(img_grid7, self.coordinates_to_pixel_loc((tile.x, tile.y)))
-                elif tile.value == 8:
-                    screen.blit(img_grid8, self.coordinates_to_pixel_loc((tile.x, tile.y)))
+                if tile.isClicked:
+                    if tile.value == -1:
+                        screen.blit(img_mine, coordinates_to_pixel_loc(tile.postion))
+                    elif tile.value == 0:
+                        screen.blit(img_emptyGrid, coordinates_to_pixel_loc(tile.postion))
+                    elif tile.value == 1:
+                        screen.blit(img_grid1, coordinates_to_pixel_loc(tile.postion))
+                    elif tile.value == 2:
+                        screen.blit(img_grid2, coordinates_to_pixel_loc(tile.postion))
+                    elif tile.value == 3:
+                        screen.blit(img_grid3, coordinates_to_pixel_loc(tile.postion))
+                    elif tile.value == 4:
+                        screen.blit(img_grid4, coordinates_to_pixel_loc(tile.postion))
+                    elif tile.value == 5:
+                        screen.blit(img_grid5, coordinates_to_pixel_loc(tile.postion))
+                    elif tile.value == 6:
+                        screen.blit(img_grid6, coordinates_to_pixel_loc(tile.postion))
+                    elif tile.value == 7:
+                        screen.blit(img_grid7, coordinates_to_pixel_loc(tile.postion))
+                    elif tile.value == 8:
+                        screen.blit(img_grid8, coordinates_to_pixel_loc(tile.postion))
+                else:
+                    screen.blit(img_grid, coordinates_to_pixel_loc((tile.x, tile.y)))
 
 
 
@@ -119,8 +124,11 @@ game.evalute_values()
 #print game in console
 for x in range(10):
     print('\n')
-    for  y in range(10):
-        print(game.grid[x][y].value, end = " ")
+    for y in range(10):
+        if game.grid[x][y].value == -1:
+            print("m", end = " ")
+        else:
+            print(game.grid[x][y].value, end = " ")
 #----------------------------------------------------------------
 
 running = True
@@ -128,6 +136,13 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT: running = False
 
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            pos = pygame.mouse.get_pos()
+
+            for collumn in game.grid: #bit inefficent looping through all in the future maybe make a reverse coordinates_to_pixel_loc function but for this will due + its miensweeper its not going to have a big effect on preformence but still
+                for tile in collumn:
+                    if tile.rect.collidepoint(pos):
+                        tile.isClicked = True
     game.screen.fill(GRAY)
     game.draw()
     pygame.display.flip()

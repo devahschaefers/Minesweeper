@@ -121,14 +121,15 @@ game = Game(10, 10, 15) #maybe add user input for this later
 game.generateGame()
 game.evalute_values()
 
-#print game in console
-for x in range(10):
+#print game in console #actuyl not workign poerply rn
+for y in range(10):
     print('\n')
-    for y in range(10):
+    for x in range(10):
         if game.grid[x][y].value == -1:
             print("m", end = " ")
         else:
             print(game.grid[x][y].value, end = " ")
+
 #----------------------------------------------------------------
 
 running = True

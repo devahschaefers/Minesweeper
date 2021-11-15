@@ -90,7 +90,7 @@ class Game():
         screen = self.screen
         for collumn in self.grid:
             for tile in collumn:
-                if tile.isClicked:
+                if tile.isClicked and not tile.isFlagged:
                     if tile.value == -1:
                         screen.blit(img_mine, coordinates_to_pixel_loc(tile.postion))
                     elif tile.value == 0:
@@ -147,7 +147,7 @@ while running:
                         if event.button == 1:
                             tile.isClicked = True
                         if event.button == 3:
-                            tile.isFlagged = True
+                            tile.isFlagged = not tile.isFlagged
                             print(tile.isFlagged)
     game.screen.fill(GRAY)
     game.draw()

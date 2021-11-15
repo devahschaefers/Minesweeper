@@ -111,6 +111,9 @@ class Game():
                         screen.blit(img_grid7, coordinates_to_pixel_loc(tile.postion))
                     elif tile.value == 8:
                         screen.blit(img_grid8, coordinates_to_pixel_loc(tile.postion))
+
+                elif tile.isFlagged == True:
+                    screen.blit(img_flag, coordinates_to_pixel_loc(tile.postion))
                 else:
                     screen.blit(img_grid, coordinates_to_pixel_loc((tile.x, tile.y)))
 
@@ -121,7 +124,7 @@ game = Game(10, 10, 15) #maybe add user input for this later
 game.generateGame()
 game.evalute_values()
 
-#print game in console #actuyl not workign poerply rn
+#print game in console
 for y in range(10):
     print('\n')
     for x in range(10):
@@ -129,7 +132,6 @@ for y in range(10):
             print("m", end = " ")
         else:
             print(game.grid[x][y].value, end = " ")
-
 #----------------------------------------------------------------
 
 running = True
@@ -139,11 +141,14 @@ while running:
 
         if event.type == pygame.MOUSEBUTTONDOWN:
             pos = pygame.mouse.get_pos()
-
             for collumn in game.grid: #bit inefficent looping through all in the future maybe make a reverse coordinates_to_pixel_loc function but for this will due + its miensweeper its not going to have a big effect on preformence but still
                 for tile in collumn:
                     if tile.rect.collidepoint(pos):
-                        tile.isClicked = True
+                        if event.button == 1:
+                            tile.isClicked = True
+                        if event.button == 3:
+                            tile.isFlagged = True
+                            print(tile.isFlagged)
     game.screen.fill(GRAY)
     game.draw()
     pygame.display.flip()

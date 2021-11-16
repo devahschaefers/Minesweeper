@@ -118,11 +118,34 @@ class Game():
                     screen.blit(img_grid, coordinates_to_pixel_loc((tile.x, tile.y)))
 
 
+    def start_game(self):
+        self.generateGame()
+        self.evalute_values()
 
+        running = True
 
-game = Game(10, 10, 15) #maybe add user input for this later
-game.generateGame()
-game.evalute_values()
+        while running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT: running = False
+
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    pos = pygame.mouse.get_pos()
+                    for collumn in game.grid: #bit inefficent looping through all in the future maybe make a reverse coordinates_to_pixel_loc function but for this will due + its miensweeper its not going to have a big effect on preformence but still
+                        for tile in collumn:
+                            if tile.rect.collidepoint(pos):
+                                if event.button == 1:
+                                    tile.isClicked = True
+                                if event.button == 3 and not tile.isClicked:
+                                    tile.isFlagged = not tile.isFlagged
+                                    print(tile.isFlagged)
+            game.screen.fill(GRAY)
+            game.draw()
+            pygame.display.flip()
+
+        pygame.quit()
+
+game = Game(10, 25 ,15)
+game.start_game()
 
 #print game in console
 for y in range(10):
@@ -133,24 +156,4 @@ for y in range(10):
         else:
             print(game.grid[x][y].value, end = " ")
 #----------------------------------------------------------------
-
-running = True
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT: running = False
-
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            pos = pygame.mouse.get_pos()
-            for collumn in game.grid: #bit inefficent looping through all in the future maybe make a reverse coordinates_to_pixel_loc function but for this will due + its miensweeper its not going to have a big effect on preformence but still
-                for tile in collumn:
-                    if tile.rect.collidepoint(pos):
-                        if event.button == 1:
-                            tile.isClicked = True
-                        if event.button == 3:
-                            tile.isFlagged = not tile.isFlagged
-                            print(tile.isFlagged)
-    game.screen.fill(GRAY)
-    game.draw()
-    pygame.display.flip()
-
-pygame.quit()
+game = Game(10,10,15)  #maybe add user input for this later

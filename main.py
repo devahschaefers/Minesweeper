@@ -77,11 +77,11 @@ class Game():
             for tile in collumn: # loop through each tile on the board
                 if tile.isMine == False:
                     for x in range(-1, 2): #the change in x for the tile postion we will check
-                        if tile.x + x <= 9 and tile.x + x >= 0:
+                        if tile.x + x <= self.width-1 and tile.x + x >= 0:
                             for y in range(-1, 2): #the change in y for the tile postion we will check
-                                if tile.y + y <= 9 and tile.y + y >= 0:
-                                    if self.grid[tile.x + x][tile.y + y].isMine:
-                                        tile.value += 1
+                                if tile.y + y <= self.height-1 and tile.y + y >= 0:
+                                        if self.grid[tile.x + x][tile.y + y].isMine:
+                                            tile.value += 1
                 else: tile.value = -1
 
                                         #ik it looks a bit weird but this is the easiest way i could think of
@@ -144,7 +144,7 @@ class Game():
 
         pygame.quit()
 
-game = Game(10, 25 ,15)
+game = Game(9, 9 , 10) #maybe add user input for this later
 game.start_game()
 
 #print game in console
@@ -156,4 +156,3 @@ for y in range(10):
         else:
             print(game.grid[x][y].value, end = " ")
 #----------------------------------------------------------------
-game = Game(10,10,15)  #maybe add user input for this later

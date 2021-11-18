@@ -22,6 +22,7 @@ BORDER = 10 # left, right and bottom border
 TOP_BORDER = 100 #top border to display info like time high score, flags etc.
 
 GRAY = (128, 128, 128)
+depth = -1
 
 
 def coordinates_to_pixel_loc (postion): #maybe think of a better name
@@ -31,14 +32,14 @@ def coordinates_to_pixel_loc (postion): #maybe think of a better name
     return (postion[0], postion[1])
 
 
-class Tile():
+class Tile(): #should proably rewrite some fo the code for tile to have more functunality or store the values in a different data structure
     def __init__(self, x, y, isMine, maxX, maxY): #maxY and maxX are outer posstin of the sprite while x y is where the computer draws them we need max to do some math calculations
         self.x = x
         self.y = y
         self.postion = (x, y)
         self.value = 0 #origanly set to 0 this is updated when evalute_values function is run
         self.isMine = isMine
-        self.isClicked = False
+        self.revealed = False
         self.isFlagged = False
         self.rect = pygame.Rect(coordinates_to_pixel_loc(self.postion), (SPRITE_SIZE, SPRITE_SIZE))
 
@@ -53,15 +54,32 @@ class Game():
         self.grid = list() #a list of tile objects
         self.mines = list() #contains a list of mine postions
 
+    def reveal_empty(self, postion, invalid_positions):
+        global depth
+        depth += 1
+        for y in range(-1,2):
+            for x in range(-1,2):
+                # print(f"depth: {depth} {postion} {(postion[0] + x, postion[1] + y)} invalid_positions {invalid_positions}") -- commented out but keept just inccase we nned it cuz this was anning to write
+                newX = postion[0] + x
+                newY = postion[1] + y
+                if not (newX > self.width - 1 or newX < 0 or newY > self.height -1 or newY < 0):
+                    tile = self.grid[newX][newY]
+                    if tile.value == 0 and not ((newX, newY) in invalid_positions):
+                        invalid_positions.append((newX, newY)) #this is so we do not get stuck in an infinte loop
+                        self.reveal_empty((newX, newY), invalid_positions)
+                    else:
+                        tile.revealed = True
+
 
     #public methods
     def generateGame(self): #creates a grid list in which Tile objects or stored a tile object can be accesd through grid[{x postion of tile object}][{y postion of tile object}]
         row = list()
         #genrate mines postions
         for i in range(self.numMines):
-            x = random.randint(0, 9)
-            y = random.randint(0, 9)
+            x = random.randint(0, self.width)
+            y = random.randint(0, self.height)
             self.mines.append((x, y))
+            print(len(self.mines))
 
         for x in range(self.width):
             for y in range(self.height):
@@ -90,7 +108,7 @@ class Game():
         screen = self.screen
         for collumn in self.grid:
             for tile in collumn:
-                if tile.isClicked and not tile.isFlagged:
+                if tile.revealed and not tile.isFlagged:
                     if tile.value == -1:
                         screen.blit(img_mine, coordinates_to_pixel_loc(tile.postion))
                     elif tile.value == 0:
@@ -118,7 +136,7 @@ class Game():
                     screen.blit(img_grid, coordinates_to_pixel_loc((tile.x, tile.y)))
 
 
-    def start_game(self):
+    def start_game(self): #is in a function so we can call it when the user want to start a new game just havent implemted that yet
         self.generateGame()
         self.evalute_values()
 
@@ -134,8 +152,8 @@ class Game():
                         for tile in collumn:
                             if tile.rect.collidepoint(pos):
                                 if event.button == 1:
-                                    tile.isClicked = True
-                                if event.button == 3 and not tile.isClicked:
+                                    tile.revealed = True
+                                if event.button == 3 and not tile.revealed:
                                     tile.isFlagged = not tile.isFlagged
                                     print(tile.isFlagged)
             game.screen.fill(GRAY)
@@ -145,14 +163,46 @@ class Game():
         pygame.quit()
 
 game = Game(9, 9 , 10) #maybe add user input for this later
-game.start_game()
+def main_loop():
+    game.generateGame()
+    game.evalute_values()
+    row = 0
 
-#print game in console
-for y in range(10):
-    print('\n')
-    for x in range(10):
-        if game.grid[x][y].value == -1:
-            print("m", end = " ")
-        else:
-            print(game.grid[x][y].value, end = " ")
-#----------------------------------------------------------------
+    #print game in console
+    for y in range(game.height):
+        print('\n')
+        for x in range(game.width):
+            if game.grid[x][y].value == -1:
+                print("m", end = " ")
+            else:
+                print(game.grid[x][y].value, end = " ")
+        row += 1
+        print("row:",row, end = "")
+    #----------------------------------------------------------------
+
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT: running = False
+
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                pos = pygame.mouse.get_pos()
+                for collumn in game.grid: #bit inefficent looping through all in the future maybe make a reverse coordinates_to_pixel_loc function but for this will due + its miensweeper its not going to have a big effect on preformence but still
+                    for tile in collumn:
+                        if tile.rect.collidepoint(pos):
+                            if event.button == 1 and not tile.isFlagged:
+                                if tile.value == 0:
+                                    game.reveal_empty(tile.postion, [])
+                                tile.revealed = True
+                            if event.button == 3 and not tile.revealed:
+                                tile.isFlagged = not tile.isFlagged
+                                print(tile.isFlagged)
+        game.screen.fill(GRAY)
+        game.draw()
+        pygame.display.flip()
+
+    pygame.quit()
+
+
+if __name__ == "__main__":
+    main_loop()

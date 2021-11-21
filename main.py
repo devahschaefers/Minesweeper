@@ -79,8 +79,6 @@ class Game():
             x = random.randint(0, self.width)
             y = random.randint(0, self.height)
             self.mines.append((x, y))
-            print(len(self.mines))
-
         for x in range(self.width):
             for y in range(self.height):
                 if (x, y) in self.mines:
@@ -155,7 +153,6 @@ class Game():
                                     tile.revealed = True
                                 if event.button == 3 and not tile.revealed:
                                     tile.isFlagged = not tile.isFlagged
-                                    print(tile.isFlagged)
             game.screen.fill(GRAY)
             game.draw()
             pygame.display.flip()
@@ -170,7 +167,6 @@ def main_loop():
 
     #print game in console
     for y in range(game.height):
-        print('\n')
         for x in range(game.width):
             if game.grid[x][y].value == -1:
                 print("m", end = " ")
@@ -178,6 +174,8 @@ def main_loop():
                 print(game.grid[x][y].value, end = " ")
         row += 1
         print("row:",row, end = "")
+        print('\n')
+
     #----------------------------------------------------------------
 
     running = True

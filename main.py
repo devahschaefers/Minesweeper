@@ -75,7 +75,7 @@ class Game():
     def generateGame(self): #creates a grid list in which Tile objects or stored a tile object can be accesd through grid[{x postion of tile object}][{y postion of tile object}]
         row = list()
         #genrate mines postions
-        for i in range(self.numMines):
+        for i in range(self.numMines + 1):
             x = random.randint(0, self.width)
             y = random.randint(0, self.height)
             self.mines.append((x, y))
@@ -160,6 +160,7 @@ class Game():
         pygame.quit()
 
 game = Game(9, 9 , 10) #maybe add user input for this later
+print(game.mines, len(game.mines))
 def main_loop():
     game.generateGame()
     game.evalute_values()

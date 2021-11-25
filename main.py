@@ -1,6 +1,7 @@
 import sys, pygame, random
 
 pygame.init()
+pygame.font.init()
 
 img_emptyGrid = pygame.image.load("Sprites/empty.png")
 img_flag = pygame.image.load("Sprites/flag.png")
@@ -22,7 +23,16 @@ BORDER = 10 # left, right and bottom border
 TOP_BORDER = 100 #top border to display info like time high score, flags etc.
 
 GRAY = (128, 128, 128)
-depth = -1
+BLACK = (0, 0, 0)
+
+FONT = "freesansbold.ttf"
+
+def drawtext(game, size, location, txt):
+    font = pygame.font.Font(FONT, size)
+    text = font.render(txt, True, BLACK)
+    textRect = text.get_rect()
+    game.screen.blit(text, location)
+
 
 
 def coordinates_to_pixel_loc (postion): #maybe think of a better name
@@ -53,16 +63,24 @@ class Game():
         self.screen = pygame.display.set_mode(self.size)
         self.grid = list() #a list of tile objects
         self.mines = list() #contains a list of mine postions
+        self.timer = 0
+#private methods
+    def __available_positions(self):
+        output = list()
+        for x in range(self.width):
+            for y in range(self.height):
+                output.append((x, y))
+        return output
 
+
+#public methods
     def reveal_empty(self, postion, invalid_positions):
-        global depth
-        depth += 1
         for y in range(-1,2):
             for x in range(-1,2):
                 # print(f"depth: {depth} {postion} {(postion[0] + x, postion[1] + y)} invalid_positions {invalid_positions}") -- commented out but keept just inccase we nned it cuz this was anning to write
                 newX = postion[0] + x
                 newY = postion[1] + y
-                if not (newX > self.width - 1 or newX < 0 or newY > self.height -1 or newY < 0):
+                if not (newX > self.width - 1 or newX < 0 or newY > self.height -1 or newY < 0): #check we are not outside of the grid
                     tile = self.grid[newX][newY]
                     if tile.value == 0 and not ((newX, newY) in invalid_positions):
                         invalid_positions.append((newX, newY)) #this is so we do not get stuck in an infinte loop
@@ -71,14 +89,16 @@ class Game():
                         tile.revealed = True
 
 
-    #public methods
-    def generateGame(self): #creates a grid list in which Tile objects or stored a tile object can be accesd through grid[{x postion of tile object}][{y postion of tile object}]
+    def generateGame(self):
+        pygame.time.set_timer(302, 1000) #creates a grid list in which Tile objects or stored a tile object can be accesd through grid[{x postion of tile object}][{y postion of tile object}]
         row = list()
         #genrate mines postions
-        for i in range(self.numMines + 1):
-            x = random.randint(0, self.width)
-            y = random.randint(0, self.height)
-            self.mines.append((x, y))
+        available_positions = self.__available_positions()
+        for i in range(self.numMines):
+            mine = random.choice(available_positions)
+            available_positions.remove(mine)
+            self.mines.append(mine)
+
         for x in range(self.width):
             for y in range(self.height):
                 if (x, y) in self.mines:
@@ -87,6 +107,8 @@ class Game():
                     row.append(Tile(x, y, False, self.width, self.height))
             self.grid.append(row.copy())
             row.clear()
+
+        print(self.mines)
 
     def evalute_values(self): #genrate game has to be called before this for the function to work
         for collumn in self.grid:
@@ -159,8 +181,9 @@ class Game():
 
         pygame.quit()
 
-game = Game(9, 9 , 10) #maybe add user input for this later
+game = Game(10, 10, 10) #maybe add user input for this later
 print(game.mines, len(game.mines))
+
 def main_loop():
     game.generateGame()
     game.evalute_values()
@@ -184,6 +207,9 @@ def main_loop():
         for event in pygame.event.get():
             if event.type == pygame.QUIT: running = False
 
+            if event.type == 302:
+                game.timer += 1
+                print(game.timer)
             if event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
                 for collumn in game.grid: #bit inefficent looping through all in the future maybe make a reverse coordinates_to_pixel_loc function but for this will due + its miensweeper its not going to have a big effect on preformence but still
@@ -198,6 +224,7 @@ def main_loop():
                                 print(tile.isFlagged)
         game.screen.fill(GRAY)
         game.draw()
+        drawtext(game, 50, (BORDER, TOP_BORDER // 4), str(game.timer))
         pygame.display.flip()
 
     pygame.quit()

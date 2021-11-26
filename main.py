@@ -1,4 +1,6 @@
-import sys, pygame, random
+import sys, pygame
+import random
+from Enums import GameState, Placement
 
 pygame.init()
 
@@ -31,10 +33,7 @@ SECOND = pygame.USEREVENT + 2
 
 FONT = "freesansbold.ttf"
 
-
-
-
-def drawtext(game, size, location, txt):
+def drawtext(game, size, location, txt, placement = Placement.TOPLEFT):
     font = pygame.font.Font(FONT, size)
     text = font.render(txt, True, BLACK)
     textRect = text.get_rect()
@@ -118,8 +117,6 @@ class Game():
 
             self.grid.append(row.copy())
             row.clear()
-
-        print(self.mines)
 
     def evalute_values(self):  # genrate game has to be called before this for the function to work
         for collumn in self.grid:
@@ -209,9 +206,7 @@ def main_loop():
                     for tile in collumn:
                         if tile.rect.collidepoint(pos):
                             if event.button == 1 and not tile.isFlagged and game.state == 0:
-
                                 if tile.value == 0: game.reveal_empty(tile.postion, [])
-
                                 if tile.value == -1:
                                     game.state = -1
                                     tile.mineClicked = True
